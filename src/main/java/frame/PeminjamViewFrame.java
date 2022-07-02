@@ -26,6 +26,11 @@ public class PeminjamViewFrame extends JFrame{
     private JButton tutupButton;
 
     public PeminjamViewFrame(){
+        tambahButton.addActionListener(e ->{
+            PeminjamInputFrame inputFrame = new PeminjamInputFrame();
+            inputFrame.setVisible(true);
+        });
+
         hapusButton.addActionListener(e -> {
             int barisTerpilih = viewTable.getSelectedRow();
             if (barisTerpilih < 0) {
