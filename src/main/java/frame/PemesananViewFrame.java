@@ -79,7 +79,8 @@ public class PemesananViewFrame extends JFrame {
         });
 
         cariButton.addActionListener(e -> {
-            if(cariTextField.getText().equals("")){
+            String keyword = cariTextField.getText();
+            if(keyword.equals("")){
                 JOptionPane.showMessageDialog(null,
                         "Isi kata kunci pencarian",
                         "Validasi kata kunci kosong",
@@ -87,27 +88,26 @@ public class PemesananViewFrame extends JFrame {
                 cariTextField.requestFocus();
                 return;
             }
-            String keyword= "%" + cariTextField.getText() + "%";
-            String searchSQL = "SELECT * FROM pemesanan WHERE nama like ?";
             Connection c = Koneksi.getConnection();
+            keyword= "%" + cariTextField.getText() + "%";
+            String searchSQL = "SELECT K.*,B.nama AS nama_peminjam FROM pemesanan AS K " +
+                    "LEFT JOIN peminjam AS B ON K.peminjam_id = B.id" +
+                    "WHERE B.nama like ? OR K.nama like ?";
 
             try {
                 PreparedStatement ps = c.prepareStatement(searchSQL);
                 ps.setString(1, keyword);
+                ps.setString(2, keyword);
                 ResultSet rs = ps.executeQuery();
 
-                String[] header = {"Id","Nama Skuter"};
-                DefaultTableModel dtm = new DefaultTableModel(header,0);
-                viewTable.setModel(dtm);
-                viewTable.getColumnModel().getColumn(0).setWidth(100);
-                viewTable.getColumnModel().getColumn(0).setMaxWidth(100);
-                viewTable.getColumnModel().getColumn(0).setMinWidth(100);
-                viewTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+                DefaultTableModel dtm = (DefaultTableModel) viewTable.getModel();
+                dtm.setRowCount(0);
+                Object[] row = new Object[3];
 
-                Object[] row = new Object[2];
                 while (rs.next()){
                     row[0] = rs.getInt("id");
                     row[1] = rs.getString("nama");
+                    row[2] = rs.getString("nama_peminjam");
                     dtm.addRow(row);
                 }
             } catch (SQLException ex) {
@@ -142,14 +142,14 @@ public class PemesananViewFrame extends JFrame {
     }
 
     public void isiTable(){
-        String selectSQL = "SELECT * FROM pemesanan";
         Connection c = Koneksi.getConnection();
-
+        String selectSQL = "SELECT K.*,B.nama AS nama_peminjam FROM pemesanan AS K " +
+                "LEFT JOIN peminjam AS B ON K.peminjam_id = B.id";
         try {
             Statement s = c.createStatement();
             ResultSet rs = s.executeQuery(selectSQL);
 
-            String[] header = {"Id","Nama Skuter"};
+            String[] header = {"Id","Nama Skuter", "Nama Peminjam"};
             DefaultTableModel dtm = new DefaultTableModel(header,0);
             viewTable.setModel(dtm);
 
@@ -158,10 +158,11 @@ public class PemesananViewFrame extends JFrame {
             viewTable.getColumnModel().getColumn(0).setMinWidth(100);
             viewTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 
-            Object[] row = new Object[2];
+            Object[] row = new Object[3];
             while (rs.next()){
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("nama");
+                row[2] = rs.getString("nama_peminjam");
                 dtm.addRow(row);
             }
         } catch (SQLException e) {

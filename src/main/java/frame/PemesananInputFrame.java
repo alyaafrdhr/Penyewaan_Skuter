@@ -1,13 +1,10 @@
 package frame;
 
-import com.mysql.cj.protocol.ReadAheadInputStream;
+import helpers.ComboBoxItem;
 import helpers.Koneksi;
 
 import javax.swing.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class PemesananInputFrame extends JFrame{
     private JPanel mainPanel;
@@ -16,6 +13,7 @@ public class PemesananInputFrame extends JFrame{
     private JButton batalButton;
     private JButton simpanButton;
     private JPanel buttonPanel;
+    private JComboBox PeminjamComboBox;
 
     private int id;
 
@@ -34,42 +32,58 @@ public class PemesananInputFrame extends JFrame{
                 namaTextField.requestFocus();
                 return;
             }
+            ComboBoxItem item = (ComboBoxItem) PeminjamComboBox.getSelectedItem();
+            int peminjamId = item.getValue();
+            if(peminjamId == 0){
+                JOptionPane.showMessageDialog(null,
+                        "Pilih Nama Peminjam",
+                        "Validasi Combobox",
+                        JOptionPane.WARNING_MESSAGE);
+                PeminjamComboBox.requestFocus();
+                return;
+            }
+
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
                 if (id == 0) {
-                    String cekSQl = "SELECT * FROM pemesanan WHERE nama = ?";
+                    String insertSQl = "INSERT INTO pemesanan SET nama = ?, peminjam_id = ?";
+                    ps = c.prepareStatement(insertSQl);
+                    ps.setString(1, nama);
+                    ps.setInt(2,peminjamId);
+                    ps.executeUpdate();
+                    dispose();
+
+                } else {
+                    String cekSQl = "SELECT * FROM pemesanan WHERE nama = ?AND id != ?";
                     ps = c.prepareStatement(cekSQl);
                     ps.setString(1,nama);
+                    ps.setInt(2,id);
                     ResultSet rs = ps.executeQuery();
                     if (rs.next()) {
                         JOptionPane.showMessageDialog(null,
                                 "Data nama skuter sama sudah ada",
                                 "Validasi data sama",
                                 JOptionPane.WARNING_MESSAGE);
+
                     } else {
-                        String insertSQl = "INSERT INTO pemesanan SET nama = ?";
-                        ps = c.prepareStatement(insertSQl);
+                        String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ? WHERE id= ?";
+                        ps = c.prepareStatement(updateSQL);
                         ps.setString(1, nama);
+                        ps.setInt(2,peminjamId);
+                        ps.setInt(3, id);
                         ps.executeUpdate();
                         dispose();
                     }
-                } else {
-                    String updateSQL = "UPDATE pemesanan SET nama = ? WHERE id= ?";
-                    ps = c.prepareStatement(updateSQL);
-                    ps.setString(1, nama);
-                    ps.setInt(2, id);
-                    ps.executeUpdate();
-                    dispose();
                 }
-            } catch (SQLException ex){
+            } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
         });
 
-        batalButton.addActionListener(e ->{
-            dispose();
-        });
+        batalButton.addActionListener(e ->
+            dispose());
+        kustomisasiKomponen();
         init();
     }
 
@@ -93,9 +107,34 @@ public class PemesananInputFrame extends JFrame{
             if(rs.next()){
                 idTextField.setText(String.valueOf(rs.getInt("id")));
                 namaTextField.setText(rs.getString("nama"));
+                int peminjamId = rs.getInt("peminjam_id");
+                for (int i = 0; i < PeminjamComboBox.getItemCount(); i++) {
+                    PeminjamComboBox.setSelectedIndex(i);
+                    ComboBoxItem item = (ComboBoxItem) PeminjamComboBox.getSelectedItem();
+                    if(peminjamId == item.getValue()){
+                        break;
+                    }
+                }
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void kustomisasiKomponen() {
+        Connection c = Koneksi.getConnection();
+        String selectSQL = "SELECT * FROM peminjam ORDER BY nama";
+        try {
+            Statement s = c.createStatement();
+            ResultSet rs = s.executeQuery(selectSQL);
+            PeminjamComboBox.addItem(new ComboBoxItem(0, "Pilih Nama Peminjam"));
+            while (rs.next()) {
+                PeminjamComboBox.addItem(new ComboBoxItem(
+                        rs.getInt("id"),
+                        rs.getString("nama")));
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
