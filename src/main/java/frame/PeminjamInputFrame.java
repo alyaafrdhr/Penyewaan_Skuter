@@ -17,17 +17,34 @@ public class PeminjamInputFrame extends JFrame{
     private JButton simpanButton;
     private JPanel buttonPanel;
 
+    private int id;
+
+    public  void setId(int id) {
+        this.id = id;
+    }
+
     public PeminjamInputFrame() {
         simpanButton.addActionListener(e ->{
             String nama= namaTextField.getText();
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
-                String insertSQl = "INSERT INTO peminjam SET nama = ?";
-                ps = c.prepareStatement(insertSQl);
-                ps.setString(1,nama);
-                ps.executeUpdate();
-                dispose();
+
+                if (id == 0) {
+                    String insertSQl = "INSERT INTO peminjam SET nama = ?";
+                    ps = c.prepareStatement(insertSQl);
+                    ps.setString(1,nama);
+                    ps.executeUpdate();
+                    dispose();
+
+                } else {
+                    String updateSQL = "UPDATE peminjam SET nama = ? WHERE id= ?";
+                    ps = c.prepareStatement(updateSQL);
+                    ps.setString(1, nama);
+                    ps.setInt(2, id);
+                    ps.executeUpdate();
+                    dispose();
+                }
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -45,6 +62,24 @@ public class PeminjamInputFrame extends JFrame{
         pack();
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
+    }
+
+    public void isiKomponen(){
+        Connection c = Koneksi.getConnection();
+        String findSQL = "SELECT * FROM peminjam WHERE id = ?";
+        PreparedStatement ps;
+
+        try {
+            ps = c.prepareStatement(findSQL);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                idTextField.setText(String.valueOf(rs.getInt("id")));
+                namaTextField.setText(rs.getString("nama"));
+            }
+        }catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
