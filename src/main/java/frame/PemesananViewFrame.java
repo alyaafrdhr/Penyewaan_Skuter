@@ -102,12 +102,14 @@ public class PemesananViewFrame extends JFrame {
 
                 DefaultTableModel dtm = (DefaultTableModel) viewTable.getModel();
                 dtm.setRowCount(0);
-                Object[] row = new Object[3];
+                Object[] row = new Object[4];
 
                 while (rs.next()){
                     row[0] = rs.getInt("id");
                     row[1] = rs.getString("nama");
                     row[2] = rs.getString("nama_peminjam");
+                    row[3] = rs.getString("tipe");
+
                     dtm.addRow(row);
                 }
             } catch (SQLException ex) {
@@ -149,7 +151,7 @@ public class PemesananViewFrame extends JFrame {
             Statement s = c.createStatement();
             ResultSet rs = s.executeQuery(selectSQL);
 
-            String[] header = {"Id","Nama Skuter", "Nama Peminjam"};
+            String[] header = {"Id","Nama Skuter", "Nama Peminjam","Tipe"};
             DefaultTableModel dtm = new DefaultTableModel(header,0);
             viewTable.setModel(dtm);
 
@@ -158,11 +160,12 @@ public class PemesananViewFrame extends JFrame {
             viewTable.getColumnModel().getColumn(0).setMinWidth(100);
             viewTable.getColumnModel().getColumn(0).setPreferredWidth(100);
 
-            Object[] row = new Object[3];
+            Object[] row = new Object[4];
             while (rs.next()){
                 row[0] = rs.getInt("id");
                 row[1] = rs.getString("nama");
                 row[2] = rs.getString("nama_peminjam");
+                row[3] = rs.getString("tipe");
                 dtm.addRow(row);
             }
         } catch (SQLException e) {

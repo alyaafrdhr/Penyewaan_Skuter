@@ -14,6 +14,9 @@ public class PemesananInputFrame extends JFrame{
     private JButton simpanButton;
     private JPanel buttonPanel;
     private JComboBox PeminjamComboBox;
+    private JRadioButton skuterAnakRadioButton;
+    private JRadioButton skuterDewasaRadioButton;
+    private ButtonGroup tipeButtonGroup;
 
     private int id;
 
@@ -32,6 +35,20 @@ public class PemesananInputFrame extends JFrame{
                 namaTextField.requestFocus();
                 return;
             }
+
+            String tipe = "";
+            if(skuterAnakRadioButton.isSelected()){
+                tipe = "Skuter Anak";
+            } else if(skuterDewasaRadioButton.isSelected()) {
+                tipe = "Skuter Dewasa";
+            } else{
+                JOptionPane.showMessageDialog(null,
+                        "Pilih tipe",
+                        "Validasi Data Kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             ComboBoxItem item = (ComboBoxItem) PeminjamComboBox.getSelectedItem();
             int peminjamId = item.getValue();
             if(peminjamId == 0){
@@ -47,35 +64,25 @@ public class PemesananInputFrame extends JFrame{
             PreparedStatement ps;
             try {
                 if (id == 0) {
-                    String insertSQl = "INSERT INTO pemesanan SET nama = ?, peminjam_id = ?";
+                    String insertSQl = "INSERT INTO pemesanan SET nama = ?, peminjam_id = ?, tipe = ?";
                     ps = c.prepareStatement(insertSQl);
                     ps.setString(1, nama);
                     ps.setInt(2,peminjamId);
+                    ps.setString(3, tipe);
                     ps.executeUpdate();
                     dispose();
 
                 } else {
-                    String cekSQl = "SELECT * FROM pemesanan WHERE nama = ?AND id != ?";
-                    ps = c.prepareStatement(cekSQl);
-                    ps.setString(1,nama);
-                    ps.setInt(2,id);
-                    ResultSet rs = ps.executeQuery();
-                    if (rs.next()) {
-                        JOptionPane.showMessageDialog(null,
-                                "Data nama skuter sama sudah ada",
-                                "Validasi data sama",
-                                JOptionPane.WARNING_MESSAGE);
-
-                    } else {
-                        String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ? WHERE id= ?";
-                        ps = c.prepareStatement(updateSQL);
-                        ps.setString(1, nama);
-                        ps.setInt(2,peminjamId);
-                        ps.setInt(3, id);
-                        ps.executeUpdate();
-                        dispose();
-                    }
+                    String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ?, tipe = ? WHERE id= ?";
+                    ps = c.prepareStatement(updateSQL);
+                    ps.setString(1, nama);
+                    ps.setInt(2,peminjamId);
+                    ps.setString(3, tipe);
+                    ps.setInt(4, id);
+                    ps.executeUpdate();
+                    dispose();
                 }
+
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             }
@@ -115,6 +122,14 @@ public class PemesananInputFrame extends JFrame{
                         break;
                     }
                 }
+                String tipe = rs.getString("tipe");
+                if(tipe != null){
+                    if(tipe.equals("SKUTER ANAK")){
+                        skuterAnakRadioButton.setSelected(true);
+                    } else if(tipe.equals("SKUTER DEWASA")){
+                        skuterDewasaRadioButton.setSelected(true);
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -136,6 +151,9 @@ public class PemesananInputFrame extends JFrame{
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+        tipeButtonGroup = new ButtonGroup();
+        tipeButtonGroup.add(skuterAnakRadioButton);
+        tipeButtonGroup.add(skuterDewasaRadioButton);
     }
 
 }
