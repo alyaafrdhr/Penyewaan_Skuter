@@ -26,17 +26,34 @@ public class PeminjamInputFrame extends JFrame{
     public PeminjamInputFrame() {
         simpanButton.addActionListener(e ->{
             String nama= namaTextField.getText();
+            if(nama.equals("")){
+                JOptionPane.showMessageDialog(null,
+                        "Isi Nama Peminjam",
+                        "Validasi data kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                namaTextField.requestFocus();
+                return;
+            }
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
-
                 if (id == 0) {
-                    String insertSQl = "INSERT INTO peminjam SET nama = ?";
-                    ps = c.prepareStatement(insertSQl);
+                    String cekSQl = "SELECT * FROM peminjam WHERE nama = ?";
+                    ps = c.prepareStatement(cekSQl);
                     ps.setString(1,nama);
-                    ps.executeUpdate();
-                    dispose();
-
+                    ResultSet rs = ps.executeQuery();
+                    if (rs.next()) {
+                        JOptionPane.showMessageDialog(null,
+                                "Data nama peminjam sama sudah ada",
+                                "Validasi data sama",
+                                JOptionPane.WARNING_MESSAGE);
+                    } else {
+                        String insertSQl = "INSERT INTO peminjam SET nama = ?";
+                        ps = c.prepareStatement(insertSQl);
+                        ps.setString(1, nama);
+                        ps.executeUpdate();
+                        dispose();
+                    }
                 } else {
                     String updateSQL = "UPDATE peminjam SET nama = ? WHERE id= ?";
                     ps = c.prepareStatement(updateSQL);
@@ -45,8 +62,8 @@ public class PeminjamInputFrame extends JFrame{
                     ps.executeUpdate();
                     dispose();
                 }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException ex){
+                    throw new RuntimeException(ex);
             }
         });
 
