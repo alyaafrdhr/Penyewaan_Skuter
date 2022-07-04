@@ -1,6 +1,7 @@
 package frame;
 
 import helpers.Koneksi;
+import net.sf.jasperreports.view.JasperViewer;
 import org.bouncycastle.jcajce.provider.drbg.DRBG;
 
 import javax.swing.*;
@@ -26,6 +27,7 @@ public class PeminjamViewFrame extends JFrame{
     private JButton tutupButton;
 
     public PeminjamViewFrame(){
+
         ubahButton.addActionListener(e ->{
             int barisTerpilih = viewTable.getSelectedRow();
             if (barisTerpilih < 0) {

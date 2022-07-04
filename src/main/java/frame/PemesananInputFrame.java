@@ -98,32 +98,30 @@ public class PemesananInputFrame extends JFrame{
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
-                if (id == 0) {
-                    String insertSQl = "INSERT INTO pemesanan (id, nama, peminjam_id, tipe, no_telp, alamat, tanggal" +
+                String insertSQl = "INSERT INTO pemesanan (id, nama, peminjam_id, tipe, no_telp, alamat, tanggal" +
                         "VALUES (NULL, ?, ?, ?, ?, ?, ?)";
-                    ps = c.prepareStatement(insertSQl);
-                    ps.setString(1, nama);
-                    ps.setInt(2, peminjamId);
-                    ps.setString(3, tipe);
-                    ps.setString(4, noTelp);
-                    ps.setString(5, alamat);
-                    ps.setString(6, tanggalSewa);
-                    ps.executeUpdate();
-                    dispose();
+                ps = c.prepareStatement(insertSQl);
+                ps.setString(1, nama);
+                ps.setInt(2, peminjamId);
+                ps.setString(3, tipe);
+                ps.setString(4, noTelp);
+                ps.setString(5, alamat);
+                ps.setString(6, tanggalSewa);
+                ps.executeUpdate();
+                dispose();
 
-                } else {
-                    String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ?, tipe = ?, no_telp = ?, alamat = ?, tanggal = ? WHERE id= ?";
-                    ps = c.prepareStatement(updateSQL);
-                    ps.setString(1, nama);
-                    ps.setInt(2, peminjamId);
-                    ps.setString(3, tipe);
-                    ps.setString(4, noTelp);
-                    ps.setString(5, alamat);
-                    ps.setString(6, tanggalSewa);
-                    ps.setInt(7, id);
-                    ps.executeUpdate();
-                    dispose();
-                }
+                String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ?, tipe = ?, no_telp = ?, alamat = ?, tanggal = ? WHERE id= ?";
+                ps = c.prepareStatement(updateSQL);
+                ps.setString(1, nama);
+                ps.setInt(2, peminjamId);
+                ps.setString(3, tipe);
+                ps.setString(4, noTelp);
+                ps.setString(5, alamat);
+                ps.setString(6, tanggalSewa);
+                ps.setInt(7, id);
+                ps.executeUpdate();
+                dispose();
+
 
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -145,6 +143,7 @@ public class PemesananInputFrame extends JFrame{
     }
 
     public void isiKomponen(){
+        idTextField.setText(String.valueOf(id));
         Connection c = Koneksi.getConnection();
         String findSQL = "SELECT * FROM pemesanan WHERE id = ?";
         PreparedStatement ps;
@@ -153,7 +152,7 @@ public class PemesananInputFrame extends JFrame{
             ps = c.prepareStatement(findSQL);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
+            while(rs.next()){
                 idTextField.setText(String.valueOf(rs.getInt("id")));
                 namaTextField.setText(rs.getString("nama"));
                 int peminjamId = rs.getInt("peminjam_id");

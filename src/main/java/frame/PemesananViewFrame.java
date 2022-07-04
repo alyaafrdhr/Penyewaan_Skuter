@@ -25,6 +25,7 @@ public class PemesananViewFrame extends JFrame {
     private JButton tutupButton;
 
     public PemesananViewFrame(){
+
         ubahButton.addActionListener(e ->{
             int barisTerpilih = viewTable.getSelectedRow();
             if (barisTerpilih < 0) {
@@ -34,9 +35,10 @@ public class PemesananViewFrame extends JFrame {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-
             TableModel tm = viewTable.getModel();
-            int id = Integer.parseInt(tm.getValueAt(barisTerpilih, 0).toString());
+            String idString = tm.getValueAt(barisTerpilih,0).toString();
+            int id = Integer.parseInt(idString);
+
             PemesananInputFrame inputFrame = new PemesananInputFrame();
             inputFrame.setId(id);
             inputFrame.isiKomponen();
