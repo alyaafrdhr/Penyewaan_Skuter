@@ -1,5 +1,7 @@
 package frame;
 
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import helpers.ComboBoxItem;
 import helpers.Koneksi;
 
@@ -16,6 +18,9 @@ public class PemesananInputFrame extends JFrame{
     private JComboBox PeminjamComboBox;
     private JRadioButton skuterAnakRadioButton;
     private JRadioButton skuterDewasaRadioButton;
+    private JTextField noTelpTextField;
+    private JTextField alamatTextField;
+    private DatePicker tanggalSewaDatePicker;
     private ButtonGroup tipeButtonGroup;
 
     private int id;
@@ -60,25 +65,62 @@ public class PemesananInputFrame extends JFrame{
                 return;
             }
 
+            String noTelp= noTelpTextField.getText();
+            if(noTelp.equals("")){
+                JOptionPane.showMessageDialog(null,
+                        "Isi No Telp",
+                        "Validasi data kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                noTelpTextField.requestFocus();
+                return;
+            }
+
+            String alamat= alamatTextField.getText();
+            if(alamat.equals("")){
+                JOptionPane.showMessageDialog(null,
+                        "Isi Alamat",
+                        "Validasi data kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                alamatTextField.requestFocus();
+                return;
+            }
+
+            String tanggalSewa = tanggalSewaDatePicker.getText();
+            if(tanggalSewa.equals("")){
+                JOptionPane.showMessageDialog(null,
+                        "Isi Tanggal Sewa",
+                        "Validasi data kosong",
+                        JOptionPane.WARNING_MESSAGE);
+                tanggalSewaDatePicker.requestFocus();
+                return;
+            }
+
             Connection c = Koneksi.getConnection();
             PreparedStatement ps;
             try {
                 if (id == 0) {
-                    String insertSQl = "INSERT INTO pemesanan SET nama = ?, peminjam_id = ?, tipe = ?";
+                    String insertSQl = "INSERT INTO pemesanan (id, nama, peminjam_id, tipe, no_telp, alamat, tanggal" +
+                        "VALUES (NULL, ?, ?, ?, ?, ?, ?)";
                     ps = c.prepareStatement(insertSQl);
                     ps.setString(1, nama);
-                    ps.setInt(2,peminjamId);
+                    ps.setInt(2, peminjamId);
                     ps.setString(3, tipe);
+                    ps.setString(4, noTelp);
+                    ps.setString(5, alamat);
+                    ps.setString(6, tanggalSewa);
                     ps.executeUpdate();
                     dispose();
 
                 } else {
-                    String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ?, tipe = ? WHERE id= ?";
+                    String updateSQL = "UPDATE pemesanan SET nama = ?, peminjam_id = ?, tipe = ?, no_telp = ?, alamat = ?, tanggal = ? WHERE id= ?";
                     ps = c.prepareStatement(updateSQL);
                     ps.setString(1, nama);
-                    ps.setInt(2,peminjamId);
+                    ps.setInt(2, peminjamId);
                     ps.setString(3, tipe);
-                    ps.setInt(4, id);
+                    ps.setString(4, noTelp);
+                    ps.setString(5, alamat);
+                    ps.setString(6, tanggalSewa);
+                    ps.setInt(7, id);
                     ps.executeUpdate();
                     dispose();
                 }
@@ -130,6 +172,9 @@ public class PemesananInputFrame extends JFrame{
                         skuterDewasaRadioButton.setSelected(true);
                     }
                 }
+                noTelpTextField.setText(rs.getString("no_telp"));
+                alamatTextField.setText(rs.getString("alamat"));
+                tanggalSewaDatePicker.setText(rs.getString("tanggal"));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -154,6 +199,10 @@ public class PemesananInputFrame extends JFrame{
         tipeButtonGroup = new ButtonGroup();
         tipeButtonGroup.add(skuterAnakRadioButton);
         tipeButtonGroup.add(skuterDewasaRadioButton);
+
+        DatePickerSettings dps = new DatePickerSettings();
+        dps.setFormatForDatesCommonEra("yyyy-MM-dd");
+        tanggalSewaDatePicker.setSettings(dps);
     }
 
 }
