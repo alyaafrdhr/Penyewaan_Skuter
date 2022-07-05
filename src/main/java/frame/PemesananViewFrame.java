@@ -23,6 +23,7 @@ public class PemesananViewFrame extends JFrame {
     private JButton batalButton;
     private JButton cetakButton;
     private JButton tutupButton;
+    private JPanel judulPanel;
 
     public PemesananViewFrame(){
 
